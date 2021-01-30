@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 
 import OrdersProducts from '@modules/orders/infra/typeorm/entities/OrdersProducts';
+import ColumnNumericTransformer from '@shared/utils/ColumnNumericTransformer';
 
 @Entity('products')
 class Product {
@@ -17,14 +18,27 @@ class Product {
   @Column()
   name: string;
 
-  @Column('decimal')
+  @Column('decimal', {
+    precision: 10,
+    scale: 2,
+  })
   price: number;
 
-  @Column('decimal')
+  @Column('decimal', {
+    precision: 10,
+    scale: 2,
+    transformer: new ColumnNumericTransformer(),
+  })
   quantity: number;
 
-  // @OneToMany(() => OrdersProducts, ordersProducts => ordersProducts.product)
-  // order_products: OrdersProducts[];
+  @OneToMany(
+    () => OrdersProducts,
+    ordersProducts => ordersProducts.product_id,
+    {
+      cascade: true,
+    },
+  )
+  order_products: OrdersProducts[];
 
   @CreateDateColumn()
   created_at: Date;

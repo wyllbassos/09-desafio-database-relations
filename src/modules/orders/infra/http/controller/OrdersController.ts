@@ -4,13 +4,37 @@ import { container } from 'tsyringe';
 
 import CreateOrderService from '@modules/orders/services/CreateOrderService';
 import FindOrderService from '@modules/orders/services/FindOrderService';
+import Product from '@modules/products/infra/typeorm/entities/Product';
+
+interface ICreateOrder {
+  customer_id: string;
+  products: Product[];
+}
 
 export default class OrdersController {
   public async show(request: Request, response: Response): Promise<Response> {
-    // TODO
+    const { id } = request.params;
+    const findOrderService = container.resolve(FindOrderService);
+
+    const order = await findOrderService.execute({ id });
+
+    if (!order) {
+      return response.json(undefined);
+    }
+
+    return response.json(order);
   }
 
   public async create(request: Request, response: Response): Promise<Response> {
-    // TODO
+    const { customer_id, products } = request.body as ICreateOrder;
+
+    const createOrderService = container.resolve(CreateOrderService);
+
+    const order = await createOrderService.execute({
+      customer_id,
+      products,
+    });
+
+    return response.json(order);
   }
 }
